@@ -1,0 +1,13 @@
+version: "3.9"
+
+services:
+  metahealth:
+    build: .
+    container_name: metahealth_app
+    ports:
+      - "5000:5000"
+    environment:
+      - SECRET_KEY=replace-with-a-secure-key
+    volumes:
+      - ./metahealth.db:/app/metahealth.db
+      - ./model_bundle.pkl:/app/model_bundle.pkl
