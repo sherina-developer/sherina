@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+{% block title %}Predictor | MetaHealth{% endblock %}
+{% block content %}
+<section class="hero">
+  <p class="kicker">MetaHealth</p>
+  <h1>Metabolic Risk Studio</h1>
+  <p class="subtitle">Run risk predictions and store them in your personal timeline for trend analysis.</p>
+</section>
+
+<section class="panel">
+  <form action="{{ url_for('predict') }}" method="post" class="grid-form">
+    <label>
+      Age
+      <input type="number" name="age" min="1" max="100" step="1" required value="{{ form_data.get('age', '') }}" />
+    </label>
+
+    <label>
+      Gender
+      <select name="gender" required>
+        <option value="">Select</option>
+        <option value="1" {% if form_data.get('gender') == '1' %}selected{% endif %}>Male</option>
+        <option value="2" {% if form_data.get('gender') == '2' %}selected{% endif %}>Female</option>
+      </select>
+    </label>
+
+    <label>
+      BMI
+      <input type="number" name="bmi" min="10" max="90" step="0.1" required value="{{ form_data.get('bmi', '') }}" />
+    </label>
+
+    <label>
+      Cholesterol (mg/dL)
+      <input type="number" name="cholesterol" min="50" max="900" step="1" required value="{{ form_data.get('cholesterol', '') }}" />
+    </label>
+
+    <label>
+      Sleep (hours)
+      <input type="number" name="sleep" min="2" max="14" step="0.5" required value="{{ form_data.get('sleep', '') }}" />
+    </label>
+
+    <label>
+      Weekly Activity
+      <select name="activity" required>
+        <option value="">Select</option>
+        <option value="1" {% if form_data.get('activity') == '1' %}selected{% endif %}>Active</option>
+        <option value="0" {% if form_data.get('activity') == '0' %}selected{% endif %}>Inactive</option>
+      </select>
+    </label>
+
+    <label>
+      Breakfast Habit
+      <select name="breakfast" required>
+        <option value="">Select</option>
+        <option value="1" {% if form_data.get('breakfast') == '1' %}selected{% endif %}>Usually Eats</option>
+        <option value="0" {% if form_data.get('breakfast') == '0' %}selected{% endif %}>Usually Skips</option>
+      </select>
+    </label>
+
+    <button type="submit">Predict Risk</button>
+  </form>
+</section>
+
+{% if prediction %}
+<section class="result {% if prediction.error %}error{% else %}{{ prediction.theme }}{% endif %}">
+  {% if prediction.error %}
+    <h2>Input Error</h2>
+    <p>{{ prediction.error }}</p>
+  {% else %}
+    <h2>{{ prediction.label }}</h2>
+    <p class="probability">Estimated probability: <strong>{{ prediction.probability }}%</strong></p>
+    <p>{{ prediction.note }}</p>
+    <h3>Health Suggestions</h3>
+    <ul class="suggestions">
+      {% for item in prediction.suggestions %}
+        <li>{{ item }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+</section>
+{% endif %}
+
+<section class="panel history">
+  <div class="history-head">
+    <h2>Saved Prediction History</h2>
+    <a href="{{ url_for('dashboard') }}">Open Dashboard</a>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Time (UTC)</th>
+          <th>Risk</th>
+          <th>Probability</th>
+          <th>BMI</th>
+          <th>Cholesterol</th>
+          <th>Sleep</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in recent_predictions %}
+          <tr>
+            <td>{{ row['created_at'][:19] }}</td>
+            <td>{{ row['risk_label'] }}</td>
+            <td>{{ row['risk_probability'] }}%</td>
+            <td>{{ row['bmi'] }}</td>
+            <td>{{ row['cholesterol'] }}</td>
+            <td>{{ row['sleep'] }}</td>
+          </tr>
+        {% else %}
+          <tr>
+            <td colspan="6">No predictions yet.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

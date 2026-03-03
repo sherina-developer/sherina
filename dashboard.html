@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% block title %}Dashboard | MetaHealth{% endblock %}
+{% block head_extra %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+{% block content %}
+<section class="hero">
+  <p class="kicker">MetaHealth Analytics</p>
+  <h1>Risk Dashboard</h1>
+  <p class="subtitle">Feature importance from the trained model and your personal risk trend timeline.</p>
+</section>
+
+<section class="stats-grid">
+  <article class="stat-card">
+    <p>Total Predictions</p>
+    <h3>{{ payload.total_predictions }}</h3>
+  </article>
+  <article class="stat-card">
+    <p>Low Risk Count</p>
+    <h3>{{ payload.risk_counts[0] }}</h3>
+  </article>
+  <article class="stat-card">
+    <p>High Risk Count</p>
+    <h3>{{ payload.risk_counts[1] }}</h3>
+  </article>
+</section>
+
+<section class="charts-grid">
+  <article class="panel chart-panel">
+    <h2>Risk Probability Trend</h2>
+    <canvas id="trendChart"></canvas>
+  </article>
+
+  <article class="panel chart-panel">
+    <h2>Risk Distribution</h2>
+    <canvas id="riskPieChart"></canvas>
+  </article>
+
+  <article class="panel chart-panel full-width">
+    <h2>Model Feature Importance (Logistic Coefficients)</h2>
+    <canvas id="importanceChart"></canvas>
+  </article>
+</section>
+
+<script>
+  const trendLabels = {{ trend_labels | safe }};
+  const trendValues = {{ trend_values | safe }};
+  const riskCounts = {{ risk_counts | safe }};
+  const importanceLabels = {{ importance_labels | safe }};
+  const importanceValues = {{ importance_values | safe }};
+
+  new Chart(document.getElementById('trendChart'), {
+    type: 'line',
+    data: {
+      labels: trendLabels,
+      datasets: [{
+        label: 'Risk Probability %',
+        data: trendValues,
+        borderColor: '#0f766e',
+        backgroundColor: 'rgba(15,118,110,0.15)',
+        tension: 0.28,
+        fill: true
+      }]
+    },
+    options: {
+      responsive: true,
+      scales: {
+        y: { min: 0, max: 100 }
+      }
+    }
+  });
+
+  new Chart(document.getElementById('riskPieChart'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Low Risk', 'High Risk'],
+      datasets: [{
+        data: riskCounts,
+        backgroundColor: ['#22c55e', '#ef4444']
+      }]
+    },
+    options: { responsive: true }
+  });
+
+  new Chart(document.getElementById('importanceChart'), {
+    type: 'bar',
+    data: {
+      labels: importanceLabels,
+      datasets: [{
+        label: 'Coefficient',
+        data: importanceValues,
+        backgroundColor: '#1d4ed8'
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true
+    }
+  });
+</script>
+{% endblock %}
