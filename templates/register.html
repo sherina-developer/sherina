@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Register | MetaHealth{% endblock %}
+{% block content %}
+<section class="auth-card">
+  <p class="kicker">MetaHealth</p>
+  <h1>Create account</h1>
+  <p class="subtitle">Track personal risk predictions over time and unlock dashboard analytics.</p>
+
+  <form action="{{ url_for('register') }}" method="post" class="auth-form">
+    <label>
+      Username
+      <input type="text" name="username" minlength="3" required />
+    </label>
+    <label>
+      Password
+      <input type="password" name="password" minlength="6" required />
+    </label>
+    <button type="submit">Register</button>
+  </form>
+
+  <p class="auth-link">Already registered? <a href="{{ url_for('login') }}">Login</a></p>
+</section>
+{% endblock %}
